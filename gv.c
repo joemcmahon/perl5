@@ -2231,7 +2231,9 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
                     goto storeparen;
                 }
                 break;
-            case '\017':        /* ${^OPEN} */
+            case '\017':        /* ${^OPEN}, ${^OLD_PERL_VERSION} */
+                if(memEQs(name, len, "\017LD_PERL_VERSION"))
+                    goto old_perl_version;
                 if (memEQs(name, len, "\017PEN"))
                     goto magicalize;
                 break;
@@ -2430,7 +2432,9 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
             sv_setpvs(GvSVn(gv),"\034");
             break;
         case ']':		/* $] */
+          old_perl_version:
         {
+
             SV * const sv = GvSV(gv);
             if (!sv_derived_from(PL_patchlevel, "version"))
                 upg_version(PL_patchlevel, TRUE);
