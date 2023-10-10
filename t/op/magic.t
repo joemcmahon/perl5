@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc( '../lib' );
-    plan (tests => 213); # some tests are run in BEGIN block
+    plan (tests => 218); # some tests are run in BEGIN block
 }
 
 # Test that defined() returns true for magic variables created on the fly,
@@ -386,7 +386,19 @@ ok $@;
 is $@, "Modification of a read-only value attempted at op/magic.t line 384.\n";
 
 ok $^O;
+
+is ${^BASETIME}, $^T;
 cmp_ok $^T, '>', 850000000;
+my $now = $^T;
+
+${^BASETIME} = 4;
+is ${^BASETIME}, 4;
+is $^T, ${^BASETIME};
+
+$^T = 4;
+is $^T, 4;
+is ${^BASETIME}, $^T;
+$^T = $now;
 
 # Test change 25062 is working
 my $orig_osname = $^O;

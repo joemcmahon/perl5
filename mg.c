@@ -916,7 +916,7 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
         break;
     case '\002':                /* ^BASETIME */
         if (strEQ(remaining, "ASETIME")) {
-          goto basetime;
+          goto get_basetime;
         }
     case '\003':		/* ^C, ^CHILD_ERROR_NATIVE */
         if (nextchar == '\0') {
@@ -1111,7 +1111,7 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
         }
         break;
     case '\024':		/* ^T, ${^BASETIME} */
-      basetime:
+      get_basetime:
         if (nextchar == '\0' || strEQ(remaining, "ASETIME")) {
 #ifdef BIG_TIME
             sv_setnv(sv, PL_basetime);
@@ -3054,6 +3054,9 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
                 SvTAINTED_off(PL_bodytarget);
         }
         break;
+    case '\002':        /* ${^BASETIME} */
+        if(strEQ(mg->mg_ptr, "ASETIME"))
+            goto set_basetime;
     case '\003':	/* ^C */
         PL_minus_c = cBOOL(SvIV(sv));
         break;
@@ -3149,6 +3152,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
               init_debugger();
       break;
     case '\024':	/* ^T */
+      set_basetime:
 #ifdef BIG_TIME
         PL_basetime = (Time_t)(SvNOK(sv) ? SvNVX(sv) : sv_2nv(sv));
 #else
