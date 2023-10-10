@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc( '../lib' );
-    plan (tests => 208); # some tests are run in BEGIN block
+    plan (tests => 213); # some tests are run in BEGIN block
 }
 
 # Test that defined() returns true for magic variables created on the fly,
@@ -376,7 +376,15 @@ EOF
 }
 
 # $], $^O, $^T
+is ${^OLD_PERL_VERSION}, $];
 cmp_ok $], '>=', 5.00319;
+eval { $] = 6 };
+ok $@;
+is $@, "Modification of a read-only value attempted at op/magic.t line 381.\n";
+eval { ${^OLD_PERL_VERSION} = 6 };
+ok $@;
+is $@, "Modification of a read-only value attempted at op/magic.t line 384.\n";
+
 ok $^O;
 cmp_ok $^T, '>', 850000000;
 
@@ -881,11 +889,11 @@ SKIP: {
 	  local $SIG{__WARN__} = sub { ++$warned if $_[0] =~ /^Wide character in setenv/; print "# @_" };
 	  $forced = $ENV{foo} = $chars;
 	  ok($warned == 1, 'ENV store warns about wide characters');
-	
+
 	  fail 'chars should still be wide!' if !utf8::is_utf8($chars);
 	  $ENV{$chars} = 'widekey';
 	  env_is($forced => 'widekey', 'ENV store takes utf8-encoded key in setenv');
-	
+
 	  ok($warned == 2, 'ENV key store warns about wide characters');
 	}
 	ok(!utf8::is_utf8($forced) && $forced eq $bytes, 'ENV store encodes high utf8 in SV');
