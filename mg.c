@@ -914,6 +914,10 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
         if (SvTAINTED(PL_bodytarget))
             SvTAINTED_on(sv);
         break;
+    case '\002':                /* ^BASETIME */
+        if (strEQ(remaining, "ASETIME")) {
+          goto basetime;
+        }
     case '\003':		/* ^C, ^CHILD_ERROR_NATIVE */
         if (nextchar == '\0') {
             sv_setiv(sv, (IV)PL_minus_c);
@@ -1106,8 +1110,9 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
 
         }
         break;
-    case '\024':		/* ^T */
-        if (nextchar == '\0') {
+    case '\024':		/* ^T, ${^BASETIME} */
+      basetime:
+        if (nextchar == '\0' || strEQ(remaining, "ASETIME")) {
 #ifdef BIG_TIME
             sv_setnv(sv, PL_basetime);
 #else

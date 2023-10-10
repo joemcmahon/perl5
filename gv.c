@@ -2187,6 +2187,9 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
                 if (memEQs(name, len, "VERSION"))
                     GvMULTI_on(gv);
                 break;
+            case '\002':        /* ${^BASETIME} */
+                if (memEQs(name, len, "\002ASETIME"))
+                    goto magicalize;
             case '\003':        /* $^CHILD_ERROR_NATIVE */
                 if (memEQs(name, len, "\003HILD_ERROR_NATIVE"))
                     goto magicalize;
